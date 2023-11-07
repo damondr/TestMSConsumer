@@ -33,10 +33,6 @@ public class UsersController {
             users = usersService.findAll();
         }
 
-        return convertToDtoList(users);
-    }
-
-    private List<UserDto> convertToDtoList(List<User> users) {
         return users.stream()
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
