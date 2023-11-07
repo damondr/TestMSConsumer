@@ -13,15 +13,14 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-
 @Component
 @RequiredArgsConstructor
 public class UserListener {
     private final ObjectMapper objectMapper;
     private final ModelMapper modelMapper;
     private final UsersService usersService;
-    @RabbitListener(queues = "user-info-queue")
+
+    @RabbitListener(queues = "#{@userInfoRabbitMQProperties.queueName}")
     public void listenQueue(@Payload Message message) {
         try {
             UserOperationDto userOperationDto = objectMapper.readValue(message.getBody(), UserOperationDto.class);
