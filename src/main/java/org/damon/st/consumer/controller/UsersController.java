@@ -2,9 +2,9 @@ package org.damon.st.consumer.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.damon.st.consumer.dto.UserDto;
+import org.damon.st.consumer.mapstruct.UserMapper;
 import org.damon.st.consumer.model.User;
 import org.damon.st.consumer.service.UsersService;
-import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 public class UsersController {
     private final UsersService usersService;
-    private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
 
     @GetMapping
     public List<UserDto> searchUsers(
@@ -38,7 +38,7 @@ public class UsersController {
 
     private List<UserDto> convertToDtoList(List<User> users) {
         return users.stream()
-                .map(user -> modelMapper.map(user, UserDto.class))
+                .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
 }

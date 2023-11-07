@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.damon.st.consumer.dto.UserDto;
 import org.damon.st.consumer.dto.UserOperationDto;
 import org.damon.st.consumer.exception.UsersException;
+import org.damon.st.consumer.mapstruct.UserMapper;
 import org.damon.st.consumer.model.User;
 import org.damon.st.consumer.service.UsersService;
-import org.modelmapper.ModelMapper;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserListener {
     private final ObjectMapper objectMapper;
-    private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
     private final UsersService usersService;
 
     @RabbitListener(queues = "#{@userInfoRabbitMQProperties.queueName}")
@@ -25,7 +25,7 @@ public class UserListener {
         try {
             UserOperationDto userOperationDto = objectMapper.readValue(message.getBody(), UserOperationDto.class);
             UserDto userDto = userOperationDto.getUser();
-            User user = convertToUser(userDto);
+            User user = userMapper.toEntity(userDto);
             String operation = userOperationDto.getOperation();
             if ("create".equals(operation)) {
                 usersService.createUser(user);
@@ -37,9 +37,5 @@ public class UserListener {
         } catch (Exception e) {
             throw new UsersException(e.getMessage());
         }
-    }
-
-    private User convertToUser(UserDto userDTO) {
-        return modelMapper.map(userDTO, User.class);
     }
 }
